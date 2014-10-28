@@ -1,0 +1,95 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<h4>Products</h4>
+<input id="products" />
+<div>Hint: type "che"</div>
+<br/><br/>
+<div id="grid"></div>
+
+@section scripts
+{
+    <link href="~/Content/kendo/2014.1.318/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/Content/kendo/2014.1.318/kendo.default.min.css" rel="stylesheet" />
+    <script src="~/Scripts/kendo/2014.1.318/kendo.web.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $("#products").kendoAutoComplete({
+                dataTextField: "ShipName",
+                filter: "contains",
+                minLength: 3,
+                dataSource: {
+                    type: "odata",
+                    serverFiltering: true,
+                    transport: {
+                        read: {
+                            url: "/Api/KendoUiSample/GetOrders",
+                            dataType: "json"
+                        },
+                    },
+                    schema: {
+                        total: "Count",
+                        data: function(response) {
+                            return response.Items;
+                        }
+                    }
+
+                }
+            });
+
+            $("#grid").kendoGrid({
+                dataSource: {
+                    type: "odata",
+                    transport: {
+                        read: {
+                            url: "/Api/KendoUiSample/GetOrders",
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        model: {
+                            fields: {
+                                OrderID: { type: "number" },
+                                Freight: { type: "number" },
+                                ShipName: { type: "string" },
+                                OrderDate: { type: "date" },
+                                ShipCity: { type: "string" }
+                            }
+                        },
+                        total: "Count",
+                        data: function(response) {
+                            return response.Items;
+                        }
+                    },
+                    pageSize: 20,
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                filterable: true,
+                sortable: true,
+                pageable: true,
+                columns: [
+                    {
+                        field: "OrderID",
+                        filterable: false
+                    },
+                    "Freight",
+                    {
+                        field: "OrderDate",
+                        title: "Order Date",
+                        format: "{0:MM/dd/yyyy}"
+                    }, {
+                        field: "ShipName",
+                        title: "Ship Name"
+                    }, {
+                        field: "ShipCity",
+                        title: "Ship City"
+                    }
+                ]
+            });
+        });
+    </script>
+}
